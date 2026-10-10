@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>$(BaseTargetFramework);$(BaseTargetFramework)-android;$(BaseTargetFramework)-ios;$(BaseTargetFramework)-maccatalyst</TargetFrameworks>
+        <TargetFrameworks>$(BaseTargetFramework);$(BaseTargetFramework)-android;$(BaseTargetFramework)-ios;$(BaseTargetFramework)-maccatalyst;$(BaseTargetFramework)-macos</TargetFrameworks>
         <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);$(BaseTargetFramework)-windows10.0.19041.0</TargetFrameworks>
         <RootNamespace>Shiny</RootNamespace>
         <EnableDefaultMauiMacCatalystTarget>false</EnableDefaultMauiMacCatalystTarget>
@@ -9,6 +9,10 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" />
+    </ItemGroup>
+    
+    <ItemGroup Condition="$(TargetFramework.Contains('-macos'))">
+        <PackageReference Include="Microsoft.Maui.Platforms.MacOS.Essentials"/>
     </ItemGroup>
 
     <ItemGroup>

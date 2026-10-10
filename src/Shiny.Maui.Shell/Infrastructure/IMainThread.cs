@@ -1,3 +1,7 @@
+#if MACOS
+using Microsoft.Maui.Platforms.MacOS.Essentials;
+#endif
+
 namespace Shiny.Infrastructure;
 
 public interface IMainThread
@@ -8,65 +12,88 @@ public interface IMainThread
     void BeginInvokeOnMainThread(Action action);
 }
 
+#if MACOS
+// MAUI Essentials' MainThread has no AppKit implementation - use the helper from Microsoft.Maui.Platforms.MacOS.Essentials
+public class MauiMainThread : IMainThread
+{
+    public Task InvokeOnMainThreadAsync(Action action)
+        => this.InvokeOnMainThreadAsync(() =>
+        {
+            action.Invoke();
+            return Task.FromResult(true);
+        });
+
+
+    public Task InvokeOnMainThreadAsync(Func<Task> func)
+        => this.InvokeOnMainThreadAsync(async () =>
+        {
+            await func.Invoke();
+            return true;
+        });
+
+
+    public Task<T> InvokeOnMainThreadAsync<T>(Func<Task<T>> func)
+    {
+        if (MainThreadHelper.IsMainThread)
+            return func.Invoke();
+
+        var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+        MainThreadHelper.BeginInvokeOnMainThread(async () =>
+        {
+            try
+            {
+                tcs.TrySetResult(await func.Invoke());
+            }
+            catch (Exception ex)
+            {
+                tcs.TrySetException(ex);
+            }
+        });
+        return tcs.Task;
+    }
+
+
+    public void BeginInvokeOnMainThread(Action action)
+        => MainThreadHelper.BeginInvokeOnMainThread(action);
+}
+#else
 public class MauiMainThread : IMainThread
 {
     public Task InvokeOnMainThreadAsync(Action action)
     {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+        if (OperatingSystem.IsLinux())
         {
             action.Invoke();
             return Task.CompletedTask;
         }
-        else
-        {
-            return MainThread.InvokeOnMainThreadAsync(action);
-        }
+        return MainThread.InvokeOnMainThreadAsync(action);
     }
+
 
     public Task InvokeOnMainThreadAsync(Func<Task> func)
     {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-        {
+        if (OperatingSystem.IsLinux())
             return func.Invoke();
-        }
-        else
-        {
-            return MainThread.InvokeOnMainThreadAsync(func);
-        }
+
+        return MainThread.InvokeOnMainThreadAsync(func);
     }
+
 
     public Task<T> InvokeOnMainThreadAsync<T>(Func<Task<T>> func)
     {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-        {
+        if (OperatingSystem.IsLinux())
             return func.Invoke();
-        }
-        else
-        {
-            return MainThread.InvokeOnMainThreadAsync(func);
-        }
+
+        return MainThread.InvokeOnMainThreadAsync(func);
     }
+
 
     public void BeginInvokeOnMainThread(Action action)
     {
-        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-        {
+        if (OperatingSystem.IsLinux())
             action.Invoke();
-        }
         else
-        {
             MainThread.BeginInvokeOnMainThread(action);
-        }
     }
 }
-
-// MACOS
-// public static bool IsMainThread => NSThread.Current.IsMainThread;
-//
-// public static void BeginInvokeOnMainThread(Action action)
-// {
-//     if (IsMainThread)
-//         action();
-//     else
-//         DispatchQueue.MainQueue.DispatchAsync(action);
-// }
+#endif
