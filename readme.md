@@ -102,7 +102,7 @@ For anything richer than the four primitives above, present one of your own page
 - One base class change — `AppShell : ShinyShell` — for deterministic BindingContext assignment
 - Page–ViewModel mapping with **automatic BindingContext** assignment
 - Drop-in `[ShellMap]` attribute replaces manual route registration
-- `IMainThread` for main-thread marshalling that works everywhere Shiny Shell runs — including the `net10.0-macos` (AppKit) target, where MAUI's `MainThread` has no implementation and Shiny uses `MainThreadHelper` from `Microsoft.Maui.Platforms.MacOS.Essentials` instead
+- `IMainThread` for main-thread marshalling that works everywhere Shiny Shell runs — including the `net10.0-macos` (AppKit) target, where MAUI's `MainThread` has no implementation and Shiny marshals via `NSThread`/GCD directly (no extra package dependency)
 
 ---
 

@@ -12,12 +12,6 @@
         <PackageVersion Include="Shiny.Maui.Controls" Version="1.6.0" />
         <PackageVersion Include="UXDivers.Popups.Maui" Version="0.9.4" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-
-        <PackageVersion Include="Microsoft.Maui.Platforms.MacOS.Essentials" Version="0.1.0-preview.12.26421.1"/>
-        <!--
-        <PackageVersion Include="Microsoft.Maui.Platforms.Linux.Gtk4" Version="0.1.0-preview.12.26421.1"/>
-        <PackageVersion Include="Microsoft.Maui.Platforms.Linux.Gtk4.Essentials" Version="0.1.0-preview.12.26421.1"/>
-        -->
     </ItemGroup>
     <ItemGroup>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />

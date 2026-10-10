@@ -1,5 +1,6 @@
 #if MACOS
-using Microsoft.Maui.Platforms.MacOS.Essentials;
+using CoreFoundation;
+using Foundation;
 #endif
 
 namespace Shiny.Infrastructure;
@@ -13,7 +14,7 @@ public interface IMainThread
 }
 
 #if MACOS
-// MAUI Essentials' MainThread has no AppKit implementation - use the helper from Microsoft.Maui.Platforms.MacOS.Essentials
+// MAUI Essentials' MainThread has no AppKit implementation - marshal via NSThread/GCD directly
 public class MauiMainThread : IMainThread
 {
     public Task InvokeOnMainThreadAsync(Action action)
@@ -34,11 +35,11 @@ public class MauiMainThread : IMainThread
 
     public Task<T> InvokeOnMainThreadAsync<T>(Func<Task<T>> func)
     {
-        if (MainThreadHelper.IsMainThread)
+        if (NSThread.IsMain)
             return func.Invoke();
 
         var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
-        MainThreadHelper.BeginInvokeOnMainThread(async () =>
+        BeginInvokeOnMainThread(async () =>
         {
             try
             {
@@ -54,7 +55,12 @@ public class MauiMainThread : IMainThread
 
 
     public void BeginInvokeOnMainThread(Action action)
-        => MainThreadHelper.BeginInvokeOnMainThread(action);
+    {
+        if (NSThread.IsMain)
+            action();
+        else
+            DispatchQueue.MainQueue.DispatchAsync(action);
+    }
 }
 #else
 public class MauiMainThread : IMainThread

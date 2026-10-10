@@ -11,10 +11,6 @@
         <PackageReference Include="Microsoft.Maui.Controls" />
     </ItemGroup>
     
-    <ItemGroup Condition="$(TargetFramework.Contains('-macos'))">
-        <PackageReference Include="Microsoft.Maui.Platforms.MacOS.Essentials"/>
-    </ItemGroup>
-
     <ItemGroup>
         <None Include="..\Shiny.Maui.Shell.SourceGenerators\build\Package.targets"
               Pack="True"
