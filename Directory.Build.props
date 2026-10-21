@@ -10,6 +10,7 @@
         <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
         <Description>Shiny MAUI Shell - Make .NET MAUI shell a pleasant experience</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Copyright>Copyright (c) $([System.DateTime]::Now.Year) Allan Ritchie</Copyright>
         <PackageProjectUrl>https://shinylib.net/maui/shell</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
