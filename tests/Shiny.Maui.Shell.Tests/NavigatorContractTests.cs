@@ -114,6 +114,20 @@ public class NavigatorContractTests
 
 
     [Fact]
+    public void ShellNavigator_RaisesNavigatedWhenShellStaysOnTheSameLocation()
+    {
+        var source = ReadInfrastructureSource("ShellNavigator.cs");
+
+        source.ShouldContain("this.RaiseNavigated(pageBefore?.BindingContext);",
+            customMessage:
+            "Navigating to the location Shell is already at (the same route with other arguments) makes no page " +
+            "appear, so AppOnPageAppearing never raises Navigated. ExecuteNavigation has to finish it, or the " +
+            "pending navigation is reported later for an unrelated page."
+        );
+    }
+
+
+    [Fact]
     public void NavigationBuilder_DoesNotSubscribeToPageResolved()
     {
         var source = ReadInfrastructureSource("NavigationBuilder.cs");

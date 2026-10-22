@@ -252,7 +252,9 @@ public class ShinyShellNavigator(
     )
     {
         var shell = Shell.Current;
-        if (shell.CurrentPage?.BindingContext is INavigationAware navAware)
+        var pageBefore = shell.CurrentPage;
+        var locationBefore = shell.CurrentState?.Location?.ToString();
+        if (pageBefore?.BindingContext is INavigationAware navAware)
             navAware.OnNavigatingFrom(parameters);
 
         this.RaiseNavigating(shell, uri, navType, parameters);
@@ -282,6 +284,15 @@ public class ShinyShellNavigator(
             }
 
             await shell.GoToAsync(uri, true, parameters).ConfigureAwait(true);
+
+            // When the target is the location Shell is already at - the same route with other
+            // arguments - Shell keeps the page, hands it the arguments and raises no Navigated, so
+            // no page appears either. Finish the navigation here, or Navigated never comes and the
+            // pending one is reported later for whatever page appears next. Shell updates
+            // CurrentState before GoToAsync returns, so the location is a safe test on Android too,
+            // where the page itself can change after the await.
+            if (shell.CurrentState?.Location?.ToString() == locationBefore && ReferenceEquals(shell.CurrentPage, pageBefore))
+                this.RaiseNavigated(pageBefore?.BindingContext);
         }
         catch
         {
